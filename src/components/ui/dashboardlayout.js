@@ -80,7 +80,7 @@ export default function DashboardLayoutBasic(props: any) {
                 title: "Custodian Console",
             }}
                 >
-                <PageContainer>
+                <PageContainer breadcrumbs={[]}>
                     {router.pathname === '/users' && <Users router={router} />}
                     {router.pathname.startsWith('/users/') && router.pathname !== '/users' && (
                         <UserProfilePage router={router} />

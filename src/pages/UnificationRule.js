@@ -28,10 +28,6 @@ const UnificationRulesPage = () => {
 
     return (
         <Box sx={{ p: 6 }}>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-                Unification Rules
-            </Typography>
-
             <Card>
                 <CardContent>
                     {rules.length === 0 ? (
