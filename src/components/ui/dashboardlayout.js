@@ -9,6 +9,7 @@ import theme from "../../theme";
 import {LocationCity, Rule, Schema, VerifiedUser} from "@mui/icons-material";
 import {Chip} from "@mui/material";
 import UnificationRule from "../../pages/UnificationRule";
+import SchemaRulesPage from "../../pages/SchemaRule";
 
 const NAVIGATION: Navigation = [
     {
@@ -22,10 +23,9 @@ const NAVIGATION: Navigation = [
         icon: <Rule />,
     },
     {
-        segment: '#upcoming-datamodel',
-        title: 'Data Model',
-        icon: <Schema sx={{ opacity: 0.4 }}/>,
-        action: <Chip label="Upcoming" size="small" color="info" />,
+        segment: 'profile_building',
+        title: 'Schema Rules',
+        icon: <Schema />,
     },
     {
         segment: '#upcoming-residency',
@@ -86,8 +86,7 @@ export default function DashboardLayoutBasic(props: any) {
                         <UserProfilePage router={router} />
                     )}
                     {router.pathname === '/unification_rules' && <UnificationRule />}
-                    {router.pathname === '#upcoming-residency' && null}
-                    {router.pathname === '#upcoming-datamodel' && null}
+                    {router.pathname === '/profile_building' && <SchemaRulesPage />}
                 </PageContainer>
             </DashboardLayout>
         </AppProvider>

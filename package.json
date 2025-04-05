@@ -20,10 +20,12 @@
     "@toolpad/core": "^0.13.0",
     "axios": "^1.8.3",
     "cors": "^2.8.5",
+    "profile-tracking-react-sdk": "file:../profile-tracking-react-sdk",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.3.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "reactflow": "^11.11.4"
   },
   "browserslist": {
     "production": [

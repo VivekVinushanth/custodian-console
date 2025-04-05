@@ -8,15 +8,19 @@ import { Card, CardContent } from "../components/ui/card";
 import { Tabs, Tab } from "../components/ui/tabs";
 import { fetchUserDetails, deleteUserProfile } from "../api/users";
 import axios from "axios";
+import ReactFlow, { Background, Controls } from 'reactflow';
+import 'reactflow/dist/style.css';
+
 
 const eventTypeColor = {
-    identify: "primary",
-    track: "secondary",
-    page: "info",
+    Identify: "primary",
+    Track: "secondary",
+    Page: "info",
     screen: "warning",
     group: "success",
     alias: "error"
 };
+
 
 const UserProfilePage = ({ router }) => {
     const match = router.pathname?.match(/^\/users\/(.+)$/);
@@ -66,6 +70,111 @@ const UserProfilePage = ({ router }) => {
             alert("Failed to delete user profile.");
             console.error(error);
         }
+    };
+
+    const ProfileHierarchyGraph = ({ profile }) => {
+        if (!profile || !profile.perma_id) return null;
+
+        const nodes = [];
+        const edges = [];
+        const currentId = profile.perma_id;
+        const parentId = profile.profile_hierarchy?.parent_profile_id;
+        const peers = profile.profile_hierarchy?.peer_profile_ids || [];
+
+        // Children: current + peers
+        const children = [
+            { id: currentId, type: "Current Profile", color: "info" },
+            ...peers.map(peer => ({
+                id: peer.peer_profile_id,
+                type: "Peer Profile",
+                color: "secondary",
+                rule: peer.rule_name
+            }))
+        ];
+
+        // Layout: space children evenly at y=200
+        const spacing = 700;
+        const startX = (children.length - 1) * -spacing / 2;
+
+        children.forEach((child, index) => {
+            const x = startX + index * spacing;
+
+            nodes.push({
+                id: child.id,
+                data: {
+                    label: (
+                        <Box textAlign="center">
+                            <Typography variant="body2">{child.id}</Typography>
+                            <Chip label={child.type} color={child.color} size="small" />
+                        </Box>
+                    )
+                },
+                position: { x, y: 200 }
+            });
+
+            // Edge from master to child (no label)
+            if (parentId) {
+                edges.push({
+                    id: `e-${parentId}-${child.id}`,
+                    source: parentId,
+                    target: child.id
+                });
+            }
+
+            // Edge from current to peer (with rule name)
+            if (child.id !== currentId) {
+                edges.push({
+                    id: `e-${currentId}-${child.id}`,
+                    source: currentId,
+                    target: child.id,
+                    label: child.rule || "peer"
+                });
+            }
+        });
+
+        // Master node: centered above children at y=0
+        if (parentId) {
+            nodes.push({
+                id: parentId,
+                data: {
+                    label: (
+                        <Box textAlign="center">
+                            <Typography variant="body2">{parentId}</Typography>
+                            <Chip label="Master Profile" color="primary" size="small" />
+                        </Box>
+                    )
+                },
+                position: { x: 0, y: 0 }
+            });
+        }
+
+        // Special case: top-level master (no parent)
+        if (profile.profile_hierarchy?.list_profile && !parentId) {
+            nodes.push({
+                id: currentId,
+                data: {
+                    label: (
+                        <Box textAlign="center">
+                            <Typography variant="body2">{currentId}</Typography>
+                            <Chip label="Master Profile" color="primary" size="small" />
+                        </Box>
+                    )
+                },
+                position: { x: 0, y: 0 }
+            });
+        }
+
+        return (
+            <Box mt={6}>
+                <Typography variant="h6" gutterBottom>Profile Hierarchy</Typography>
+                <Box sx={{ height: 500, border: "1px solid #ccc", borderRadius: 2, mt: 2 }}>
+                    <ReactFlow nodes={nodes} edges={edges} fitView>
+                        <Background />
+                        <Controls />
+                    </ReactFlow>
+                </Box>
+            </Box>
+        );
     };
 
     const renderTableData = (data) => {
@@ -217,6 +326,9 @@ const UserProfilePage = ({ router }) => {
                     </Box>
                 )}
             </Box>
+
+            <ProfileHierarchyGraph profile={selectedProfile} />
+
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
