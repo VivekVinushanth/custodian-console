@@ -213,7 +213,7 @@ const ProfileTraitsPage = () => {
 
                                 {form.computation === "count" && (
                                     <Grid item xs={6}>
-                                        <TextField select label="Time Range" fullWidth value={form.time_window} onChange={e => updateForm("time_range", e.target.value.toString())}>
+                                        <TextField select label="Time Range" fullWidth value={form.time_window} onChange={e => updateForm("time_window", e.target.value.toString())}>
                                             {timeRanges.map(opt => <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>)}
                                         </TextField>
                                     </Grid>
