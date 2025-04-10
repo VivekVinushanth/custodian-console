@@ -48,7 +48,7 @@ const UserProfilePage = ({ router }) => {
                 }
             });
 
-            axios.get(`http://localhost:8080/api/v1/${permaId}/events`)
+            axios.get(`http://localhost:8900/api/v1/${permaId}/events`)
                 .then((res) => {
                     if (Array.isArray(res.data)) {
                         const sorted = res.data.sort((a, b) => new Date(b.event_timestamp) - new Date(a.event_timestamp));

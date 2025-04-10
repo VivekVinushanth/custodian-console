@@ -30,30 +30,48 @@ const UsersPage = ({ router }) => {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell><strong>Perma ID</strong></TableCell>
-                            <TableCell><strong>Attached Users</strong></TableCell>
+                            <TableCell><strong>Profile Id</strong></TableCell>
+                            <TableCell><strong>Attached User</strong></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {profiles.map((profile, index) => (
-                            <TableRow
-                                key={index}
-                                onClick={() => handleRowClick(profile.perma_id)}
-                                sx={{
-                                    cursor: "pointer",
-                                    "&:hover": { backgroundColor: "#f5f5f5" }
-                                }}
-                            >
-                                <TableCell>{profile.perma_id}</TableCell>
-                                <TableCell>
-                                    {profile.user_ids?.length > 0 ? (
-                                        profile.user_ids.join(", ")
-                                    ) : (
-                                        <Chip label="Anonymous Profile" color="primary" size="small" />
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {profiles.map((profile, index) => {
+                            const identity = profile.identity || {};
+                            const userId = identity.user_id;
+                            const username = identity.user_name;
+
+                            return (
+                                <TableRow
+                                    key={index}
+                                    onClick={() => handleRowClick(profile.perma_id)}
+                                    sx={{
+                                        cursor: "pointer",
+                                        "&:hover": { backgroundColor: "#f5f5f5" }
+                                    }}
+                                >
+                                    <TableCell>
+                                        <Typography>{profile.perma_id}</Typography>
+                                        {username && (
+                                            <Typography variant="caption" color="text.secondary">
+                                                {username}
+                                            </Typography>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {userId? (
+                                            <>
+                                                <Chip label="Registered User" color="success" size="small" />
+                                                <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: "block" }}>
+                                                     {profile.identity.user_id}
+                                                </Typography>
+                                            </>
+                                        ) : (
+                                            <Chip label="Anonymous Profile" color="primary" size="small" />
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>

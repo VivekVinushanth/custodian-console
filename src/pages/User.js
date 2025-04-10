@@ -42,7 +42,7 @@ const UserProfilePage = ({ router }) => {
                 }
             });
 
-            axios.get(`http://localhost:8080/api/v1/${permaId}/events`)
+            axios.get(`http://localhost:8900/api/v1/${permaId}/events`)
                 .then((res) => {
                     if (Array.isArray(res.data)) {
                         const sorted = res.data.sort((a, b) =>
@@ -77,62 +77,49 @@ const UserProfilePage = ({ router }) => {
 
         const nodes = [];
         const edges = [];
+
         const currentId = profile.perma_id;
         const parentId = profile.profile_hierarchy?.parent_profile_id;
-        const peers = profile.profile_hierarchy?.peer_profile_ids || [];
+        const childProfiles = profile.profile_hierarchy?.child_profile_ids || [];
 
-        // Children: current + peers
-        const children = [
-            { id: currentId, type: "Current Profile", color: "info" },
-            ...peers.map(peer => ({
-                id: peer.peer_profile_id,
-                type: "Peer Profile",
-                color: "secondary",
-                rule: peer.rule_name
-            }))
-        ];
+        const spacing = 300;
+        const startX = (childProfiles.length - 1) * -spacing / 2;
 
-        // Layout: space children evenly at y=200
-        const spacing = 700;
-        const startX = (children.length - 1) * -spacing / 2;
-
-        children.forEach((child, index) => {
+        // Add children
+        childProfiles.forEach((child, index) => {
+            const isCurrent = child.child_profile_id === currentId;
             const x = startX + index * spacing;
 
             nodes.push({
-                id: child.id,
+                id: child.child_profile_id,
                 data: {
                     label: (
                         <Box textAlign="center">
-                            <Typography variant="body2">{child.id}</Typography>
-                            <Chip label={child.type} color={child.color} size="small" />
+                            <Typography variant="body2">{child.child_profile_id}</Typography>
+                            <Chip
+                                label={isCurrent ? "Current Profile" : "Peer Profile"}
+                                color={isCurrent ? "info" : "secondary"}
+                                size="small"
+                            />
                         </Box>
                     )
                 },
                 position: { x, y: 200 }
             });
 
-            // Edge from master to child (no label)
+            // 🔁 Edge from master to child with rule_name
             if (parentId) {
                 edges.push({
-                    id: `e-${parentId}-${child.id}`,
+                    id: `e-${parentId}-${child.child_profile_id}`,
                     source: parentId,
-                    target: child.id
-                });
-            }
-
-            // Edge from current to peer (with rule name)
-            if (child.id !== currentId) {
-                edges.push({
-                    id: `e-${currentId}-${child.id}`,
-                    source: currentId,
-                    target: child.id,
-                    label: child.rule || "peer"
+                    target: child.child_profile_id,
+                    label: child.rule_name || "linked",
+                    style: { strokeDasharray: '4 2' }
                 });
             }
         });
 
-        // Master node: centered above children at y=0
+        // Add master node
         if (parentId) {
             nodes.push({
                 id: parentId,
@@ -148,7 +135,7 @@ const UserProfilePage = ({ router }) => {
             });
         }
 
-        // Special case: top-level master (no parent)
+        // Top-level master case
         if (profile.profile_hierarchy?.list_profile && !parentId) {
             nodes.push({
                 id: currentId,
@@ -176,6 +163,8 @@ const UserProfilePage = ({ router }) => {
             </Box>
         );
     };
+
+
 
     const renderTableData = (data) => {
         return Object.entries(data || {}).map(([key, value]) => {

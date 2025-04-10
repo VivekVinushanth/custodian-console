@@ -6,10 +6,22 @@ import { PageContainer } from '@toolpad/core/PageContainer';
 import Users from "../../pages/Users";
 import UserProfilePage from "../../pages/User";
 import theme from "../../theme";
-import {LocationCity, Rule, Schema, VerifiedUser} from "@mui/icons-material";
+import {
+    Event,
+    EventBusyOutlined,
+    EventBusyRounded,
+    LocationCity,
+    Rule,
+    Schema,
+    VerifiedUser
+} from "@mui/icons-material";
 import {Chip} from "@mui/material";
 import UnificationRule from "../../pages/UnificationRule";
-import SchemaRulesPage from "../../pages/SchemaRule";
+import SchemaRulesPage from "../../pages/ProfileEnrichment";
+import EventSchema from "../../pages/EventSchema";
+import EventSchemasPage from "../../pages/EventSchema";
+import ProfileTraitsPage from "../../pages/ProfileEnrichment";
+import EventExplorerPage from "../../pages/EventExplorer";
 
 const NAVIGATION: Navigation = [
     {
@@ -24,15 +36,18 @@ const NAVIGATION: Navigation = [
     },
     {
         segment: 'profile_building',
-        title: 'Schema Rules',
+        title: 'Profile Enrichment',
         icon: <Schema />,
     },
+    // {
+    //     segment: 'event_schema',
+    //     title: 'Event Schema',
+    //     icon: <EventBusyOutlined />,
+    // },
     {
-        segment: '#upcoming-residency',
-        title: 'Data Residency',
-        icon: <LocationCity sx={{ opacity: 0.4 }} />,
-        action: <Chip label="Upcoming" size="small" color="info" />,
-
+        segment: 'event_explorer',
+        title: 'Event Explorer',
+        icon: <EventBusyRounded />,
     },
 ];
 
@@ -73,11 +88,11 @@ export default function DashboardLayoutBasic(props: any) {
                 logo: (
                     <img
                         src="/logo.png"
-                        alt="Custodian Console"
+                        alt="WSO2 Identity Server"
                         style={{ height: 130, marginRight: 8 }}
                     />
                 ),
-                title: "Custodian Console",
+                title: "WSO2 Identity Server",
             }}
                 >
                 <PageContainer breadcrumbs={[]}>
@@ -86,7 +101,9 @@ export default function DashboardLayoutBasic(props: any) {
                         <UserProfilePage router={router} />
                     )}
                     {router.pathname === '/unification_rules' && <UnificationRule />}
-                    {router.pathname === '/profile_building' && <SchemaRulesPage />}
+                    {router.pathname === '/profile_building' && <ProfileTraitsPage />}
+                    {router.pathname === '/event_schema' && <EventSchemasPage />}
+                    {router.pathname === '/event_explorer' && <EventExplorerPage />}
                 </PageContainer>
             </DashboardLayout>
         </AppProvider>
