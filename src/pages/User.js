@@ -13,9 +13,9 @@ import 'reactflow/dist/style.css';
 
 
 const eventTypeColor = {
-    Identify: "primary",
-    Track: "secondary",
-    Page: "info",
+    identify: "primary",
+    track: "secondary",
+    page: "info",
     screen: "warning",
     group: "success",
     alias: "error"
@@ -36,9 +36,11 @@ const UserProfilePage = ({ router }) => {
         if (permaId) {
             fetchUserDetails(permaId).then((data) => {
                 setSelectedProfile(data);
-                if (data?.app_context?.length === 1) {
-                    setSelectedAppContextId(data.app_context[0].app_id);
-                    setSelectedEventsAppId(data.app_context[0].app_id);
+
+                const firstApp = data?.application_data?.[0];
+                if (firstApp) {
+                    setSelectedAppContextId(firstApp.application_id);
+                    setSelectedEventsAppId(firstApp.application_id); // Use the same as default for both
                 }
             });
 
@@ -54,6 +56,14 @@ const UserProfilePage = ({ router }) => {
                 .catch(console.error);
         }
     }, [permaId]);
+
+    useEffect(() => {
+        if (userEvents.length && !selectedEventsAppId) {
+            const firstAppId = userEvents[0].app_id;
+            setSelectedEventsAppId(firstAppId);
+        }
+    }, [userEvents, selectedEventsAppId]);
+
 
     const groupedEvents = userEvents.reduce((acc, event) => {
         acc[event.app_id] = acc[event.app_id] || [];
@@ -73,12 +83,12 @@ const UserProfilePage = ({ router }) => {
     };
 
     const ProfileHierarchyGraph = ({ profile }) => {
-        if (!profile || !profile.perma_id) return null;
+        if (!profile || !profile.profile_id) return null;
 
         const nodes = [];
         const edges = [];
 
-        const currentId = profile.perma_id;
+        const currentId = profile.profile_id;
         const parentId = profile.profile_hierarchy?.parent_profile_id;
         const childProfiles = profile.profile_hierarchy?.child_profile_ids || [];
 
@@ -228,18 +238,18 @@ const UserProfilePage = ({ router }) => {
             <Box display="grid" gridTemplateColumns={{ md: "1fr 1fr" }} gap={4}>
                 <Card>
                     <CardContent>
-                        <Typography variant="h6">Identity Data</Typography>
+                        <Typography variant="h6">Identity Attributes</Typography>
                         <TableContainer component={Paper}>
-                            <Table><TableBody>{renderTableData(selectedProfile.identity)}</TableBody></Table>
+                            <Table><TableBody>{renderTableData(selectedProfile.identity_attributes)}</TableBody></Table>
                         </TableContainer>
                     </CardContent>
                 </Card>
 
                 <Card>
                     <CardContent>
-                        <Typography variant="h6">Personality Data</Typography>
+                        <Typography variant="h6">Traits</Typography>
                         <TableContainer component={Paper}>
-                            <Table><TableBody>{renderTableData(selectedProfile.personality)}</TableBody></Table>
+                            <Table><TableBody>{renderTableData(selectedProfile.traits)}</TableBody></Table>
                         </TableContainer>
                     </CardContent>
                 </Card>
@@ -249,12 +259,12 @@ const UserProfilePage = ({ router }) => {
             <Box mt={6}>
                 <Typography variant="h6">App Context</Typography>
                 <Tabs>
-                    {(selectedProfile?.app_context || []).map((app) => (
+                    {(selectedProfile?.application_data || []).map((app) => (
                         <Tab
-                            key={app.app_id}
-                            label={app.app_id}
-                            onClick={() => setSelectedAppContextId(app.app_id)}
-                            selected={selectedAppContextId === app.app_id}
+                            key={app.application_id}
+                            label={app.application_id}
+                            onClick={() => setSelectedAppContextId(app.application_id)}
+                            selected={selectedAppContextId === app.application_id}
                         />
                     ))}
                 </Tabs>
@@ -265,7 +275,7 @@ const UserProfilePage = ({ router }) => {
                                 <Table>
                                     <TableBody>
                                         {renderTableData(
-                                            selectedProfile.app_context.find(app => app.app_id === selectedAppContextId)
+                                            selectedProfile.application_data.find(app => app.application_id === selectedAppContextId)
                                         )}
                                     </TableBody>
                                 </Table>

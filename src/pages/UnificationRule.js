@@ -9,18 +9,24 @@ import axios from "axios";
 import { Card, CardContent } from "../components/ui/card";
 import { Delete, Add } from "@mui/icons-material";
 
-const scopes = ["identity", "app_context", "personality", "session"];
+const scopes = ["Identity Attribute", "Application Data", "Traits"];
 
 const UnificationRulesPage = () => {
     const [rules, setRules] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [form, setForm] = useState({
         rule_name: "",
-        scope: "identity",
+        scope: "Identity Attribute",
         attribute: "",
         priority: 0,
         is_active: true
     });
+
+    const scopeMap = {
+        "Identity Attribute": "identity_attributes",
+        "Application Data": "application_data",
+        "Traits": "traits"
+    };
 
     useEffect(() => {
         loadRules();
@@ -42,9 +48,9 @@ const UnificationRulesPage = () => {
     };
 
     const handleSubmit = async () => {
-        const finalAttribute = `${form.scope}.${form.attribute}`;
+        const finalAttribute = `${scopeMap[form.scope]}.${form.attribute}`;
         try {
-            await axios.post("http://localhost:8900/api/v1/resolution-rules/", {
+            await axios.post("http://localhost:8900/api/v1/unification-rules/", {
                 rule_name: form.rule_name,
                 attribute: finalAttribute,
                 priority: form.priority,
@@ -53,7 +59,7 @@ const UnificationRulesPage = () => {
             setModalOpen(false);
             setForm({
                 rule_name: "",
-                scope: "identity",
+                scope: "Identity Attribute",
                 attribute: "",
                 priority: 0,
                 is_active: true
@@ -66,7 +72,7 @@ const UnificationRulesPage = () => {
 
     const handleDeleteRule = async (ruleId) => {
         try {
-            await axios.delete(`http://localhost:8900/api/v1/resolution-rules/${ruleId}`);
+            await axios.delete(`http://localhost:8900/api/v1/unification-rules/${ruleId}`);
             loadRules();
         } catch (err) {
             console.error("Failed to delete rule", err);
@@ -75,7 +81,7 @@ const UnificationRulesPage = () => {
 
     const handleToggleRule = async (ruleId, currentStatus) => {
         try {
-            await axios.patch(`http://localhost:8900/api/v1/resolution-rules/${ruleId}`, {
+            await axios.patch(`http://localhost:8900/api/v1/unification-rules/${ruleId}`, {
                 is_active: !currentStatus
             });
             loadRules();

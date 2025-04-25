@@ -60,6 +60,12 @@ const EventExplorerPage = () => {
         setConditions(updated);
     };
 
+    const eventTypeColor = {
+        identify: "primary",
+        track: "secondary",
+        page: "info",
+    };
+
     // Remove a condition
     const handleRemoveCondition = (index) => {
         setConditions(conditions.filter((_, i) => i !== index));
@@ -247,7 +253,7 @@ const EventExplorerPage = () => {
                                             <Chip
                                                 label={e.event_type}
                                                 size="small"
-                                                sx={{ ...eventTypeStyles[e.event_type], fontWeight: 500 }}
+                                                color={eventTypeColor[event.event_type] || "default"}
                                             />
                                         </TableCell>
                                         <TableCell>{e.event_name}</TableCell>

@@ -12,7 +12,7 @@ const traitTypes = ["static", "computed"];
 const mergeStrategies = ["overwrite", "combine", "ignore"];
 const eventTypes = ["identify", "page", "track"];
 const maskingStrategies = ["hash", "truncate", "redact"];
-const propertyGroups = ["identity", "personality", "app_context", "session"];
+const propertyGroups = ["Identity Attribute", "Traits", "Application Data"];
 const computationMethods = ["copy", "concat", "count"];
 const valueTypes = ["string", "int", "boolean", "date", "arrayOfString", "arrayOfInt"];
 const conditionOperators = [
@@ -20,6 +20,12 @@ const conditionOperators = [
     "contains", "not_contains", "greater_than", "greater_than_equals",
     "less_than", "less_than_equals"
 ];
+
+const propertyGroupMap = {
+    "Identity Attribute": "identity_attributes",
+    "Traits": "traits",
+    "Application Data": "application_data"
+};
 
 const timeRanges = [
     { label: "Last 15 minutes", value: 900 },
@@ -57,14 +63,14 @@ const ProfileTraitsPage = () => {
         enabled: true
     });
 
-    const [propertyGroup, setPropertyGroup] = useState("identity");
+    const [propertyGroup, setPropertyGroup] = useState("Identity Attribute");
     const [propertySuffix, setPropertySuffix] = useState("");
 
     useEffect(() => { loadRules(); }, []);
 
     const loadRules = async () => {
         try {
-            const res = await axios.get("http://localhost:8900/api/v1/profile-traits/");
+            const res = await axios.get("http://localhost:8900/api/v1/enrichment-rules/");
             setRules(res.data || []);
         } catch (err) {
             console.error("Failed to fetch profile traits", err);
@@ -83,7 +89,9 @@ const ProfileTraitsPage = () => {
     const removeCondition = (index) => updateTrigger("conditions", form.trigger.conditions.filter((_, i) => i !== index));
 
     const handleSubmit = async () => {
-        const fullTraitName = propertySuffix ? `${propertyGroup}.${propertySuffix}` : propertyGroup;
+        const fullTraitName = propertySuffix
+            ? `${propertyGroupMap[propertyGroup]}.${propertySuffix}`
+            : propertyGroupMap[propertyGroup];
 
         if (form.trait_type === "computed" && form.computation === "copy" && (!form.source_fields[0] || form.source_fields[0].trim() === "")) {
             alert("Source field is required for 'copy' computation.");
@@ -112,7 +120,7 @@ const ProfileTraitsPage = () => {
         };
 
         try {
-            await axios.post("http://localhost:8900/api/v1/profile-traits", payload);
+            await axios.post("http://localhost:8900/api/v1/enrichment-rules", payload);
             resetForm();
             loadRules();
         } catch (err) {
@@ -146,7 +154,7 @@ const ProfileTraitsPage = () => {
 
     const handleDelete = async (traitId) => {
         try {
-            await axios.delete(`http://localhost:8900/api/v1/profile-traits/${traitId}`);
+            await axios.delete(`http://localhost:8900/api/v1/enrichment-rules/${traitId}`);
             loadRules();
         } catch (err) {
             console.error("Failed to delete trait", err);

@@ -14,7 +14,7 @@ export const fetchProfiles = async () => {
 
 export const fetchUserDetails = async (permaId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/${permaId}/profile`);
+        const response = await axios.get(`${API_BASE_URL}/profile/${permaId}`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching user details for ${permaId}:`, error);
@@ -24,7 +24,7 @@ export const fetchUserDetails = async (permaId) => {
 
 export const fetchRules = async (permaId) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/resolution-rules/`);
+        const response = await axios.get(`${API_BASE_URL}/unification-rules/`);
         return response.data;
     } catch (error) {
         console.error(`Error fetching user details for ${permaId}:`, error);
@@ -35,7 +35,7 @@ export const fetchRules = async (permaId) => {
 export const deleteUserProfile = async (permaId) => {
 
     try {
-    const response = await axios.delete(`${API_BASE_URL}/${permaId}/profile`);
+    const response = await axios.delete(`${API_BASE_URL}/profile/${permaId}`);
     } catch (error) {
         throw new Error("Failed to delete user profile");
     }
